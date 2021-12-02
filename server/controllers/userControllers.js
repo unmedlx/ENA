@@ -1,5 +1,5 @@
 const { registerValidation, loginValidation } = require("../helper/validation")
-const { Users } = require("../models/index")
+const { Users, Roles } = require("../models/index")
 const bcrypt = require('bcrypt')
 const { createToken } = require("../helper/createToken")
 const transporter = require("../helper/nodemailer")
@@ -29,7 +29,7 @@ module.exports = {
                 password: hashed,
                 isVerified: false,
                 userImage: "/images/profilePhotos/profile-default.png",
-                RoleId: "1"
+                RoleId: "2"
             })
 
             // Create Token
@@ -116,7 +116,7 @@ module.exports = {
         }
 
         // Check if username
-        const userExist = await Users.findOne({ where: { username: req.body.username } })
+        const userExist = await Users.findOne({ where: { username: req.body.username }, include: [{ model: Roles, required: false }] })
         if (!userExist) return res.status(200).send({ message: 'User is not exist', success: false })
 
         // Check password
@@ -131,7 +131,9 @@ module.exports = {
             return res.status(200).send({ message: "Your account need to be verify" })
         }
 
-        return res.status(200).send({ message: "Successfully login", token: token, id, email, username, isVerified, roleId, success: true })
+        delete userExist.dataValues.password;
+
+        return res.status(200).send({ message: "Successfully login", token: token, data: userExist, success: true })
 
     }
 

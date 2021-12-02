@@ -38,7 +38,13 @@ module.exports = (sequelize, DataTypes) => {
         }
     })
 
-
+    Users.associate = (models) => {
+        Users.belongsTo(models.Roles, {
+            foreignKey: {
+                allowNull: false
+            }
+        });
+    }
 
 
     return Users
